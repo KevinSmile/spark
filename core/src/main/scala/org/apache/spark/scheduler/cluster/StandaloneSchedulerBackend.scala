@@ -17,6 +17,7 @@
 
 package org.apache.spark.scheduler.cluster
 
+import java.util.Locale
 import java.util.concurrent.Semaphore
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -208,6 +209,20 @@ private[spark] class StandaloneSchedulerBackend(
       case None =>
         logWarning("Attempted to kill executors before driver fully initialized.")
         Future.successful(false)
+    }
+  }
+
+  private def extractDriverLogUrls(): Map[String, String] = {
+    val prefix = "SPARK_DRIVER_LOG_URL_"
+    sys.env.filterKeys(_.startsWith(prefix))
+      .map(e => (e._1.substring(prefix.length).toLowerCase(Locale.ROOT), e._2)).toMap
+  }
+
+  override def getDriverLogUrls: Option[Map[String, String]] = {
+    sys.env.get("SPARK_DRIVER_LOG_URL_STDOUT") match {
+      case Some(_) => Some(extractDriverLogUrls())
+      case None => // client mode
+        None
     }
   }
 

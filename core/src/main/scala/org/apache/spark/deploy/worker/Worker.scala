@@ -587,6 +587,7 @@ private[deploy] class Worker(
         driverDesc.copy(command = Worker.maybeUpdateSSLSettings(driverDesc.command, conf)),
         self,
         workerUri,
+        workerWebUiUrl,
         securityMgr)
       drivers(driverId) = driver
       driver.start()
